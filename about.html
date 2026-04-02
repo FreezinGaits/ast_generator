@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Compiler Design AST Generator</title>
+  <meta name="description" content="Detailed technical documentation of the Abstract Syntax Tree generator.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Unique styles for the about page */
+    .about-main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .docs-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-md);
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .docs-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    .docs-title span {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .docs-text {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .docs-text strong {
+      color: var(--accent-primary);
+    }
+
+    .docs-code {
+      background: var(--bg-elevated);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      overflow-x: auto;
+      margin: 24px 0;
+    }
+
+    .docs-code .comment {
+      color: var(--text-muted);
+    }
+
+    .docs-code .keyword {
+      color: var(--accent-primary);
+    }
+
+    .docs-code .string {
+      color: var(--green);
+    }
+
+    .docs-code .number {
+      color: var(--yellow);
+    }
+
+    /* Tables */
+    .docs-table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin: 32px 0;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .docs-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .docs-table th,
+    .docs-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .docs-table th {
+      background: var(--bg-elevated);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .docs-table td {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .docs-table tr:hover td {
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Diagram Styles */
+    .docs-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin: 40px 0;
+    }
+
+    .diagram-box {
+      padding: 16px 32px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent-primary);
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .diagram-arrow {
+      width: 2px;
+      height: 40px;
+      background: var(--accent-primary);
+      position: relative;
+    }
+
+    .diagram-arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: -4px;
+      border-width: 6px 5px 0;
+      border-style: solid;
+      border-color: var(--accent-primary) transparent transparent transparent;
+    }
+
+    /* Grid for Categories */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .category-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      transition: transform var(--transition-fast);
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-primary);
+    }
+
+    .cat-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cat-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Mobile Responsive Logic */
+    @media (max-width: 768px) {
+      .about-main {
+        padding: 24px 16px 60px;
+      }
+
+      .docs-section {
+        padding: 24px 20px;
+      }
+
+      .docs-title {
+        font-size: 1.4rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .docs-text {
+        font-size: 0.95rem;
+      }
+
+      .docs-table th,
+      .docs-table td {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+      }
+
+      .diagram-box {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        text-align: center;
+        width: 100%;
+      }
+
+      .docs-code {
+        font-size: 0.8rem;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Animated Background -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="6" r="4" fill="url(#grad1)" />
+          <circle cx="6" cy="20" r="3.5" fill="url(#grad1)" />
+          <circle cx="22" cy="20" r="3.5" fill="url(#grad1)" />
+          <line x1="14" y1="10" x2="6" y2="16.5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" />
+          <line x1="14" y1="10" x2="22" y2="16.5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="28" y2="28">
+              <stop stop-color="#6366f1" />
+              <stop offset="1" stop-color="#a855f7" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="nav-title">AST Generator</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">
+        <span class="nav-link-icon">⌨️</span> Input
+      </a>
+      <a href="result.html" class="nav-link">
+        <span class="nav-link-icon">🌳</span> AST Result
+      </a>
+      <a href="about.html" class="nav-link active">
+        <span class="nav-link-icon">📖</span> About
+      </a>
+    </div>
+    <div class="nav-badge">Compiler Design</div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="about-main">
+
+    <div class="hero-section">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        Documentation
+      </div>
+      <h1 class="hero-title">Technical <span class="hero-title-gradient">Overview</span></h1>
+      <p class="hero-subtitle">An in-depth explanation of how source code is natively parsed into an interactive
+        Abstract Syntax Tree utilizing custom Lexical and Syntax analysis tools.</p>
+    </div>
+
+    <!-- 1. The Technology Stack -->
+    <section class="docs-section" style="animation-delay: 0.1s;">
+      <h2 class="docs-title">🚀 <span>The Technology Stack</span></h2>
+      <p class="docs-text">
+        This project was meticulously built from the ground up to demonstrate pure compiler design principles natively
+        in the browser. <strong>NO external parsing libraries</strong> (like Babel, Esprima, or Acorn) were used. The
+        entire engine is custom-written.
+      </p>
+      <div class="category-grid">
+        <div class="category-card">
+          <div class="cat-title" style="color: var(--accent-primary);">⚡ Vanilla JavaScript</div>
+          <p class="cat-desc">The Lexer and Recursive Descent Parser are completely handwritten in ES6 JavaScript. They
+            independently tokenize and parse complex grammar strings into JSON-structured AST geometries.</p>
+        </div>
+        <div class="category-card">
+          <div class="cat-title" style="color: var(--pink);">🎨 Custom CSS UI</div>
+          <p class="cat-desc">Glassmorphism effects, dynamically resizing grids, and pseudo-element trickery. All styles
+            are crafted using pure CSS3 variables without relying on Tailwind or Bootstrap.</p>
+        </div>
+        <div class="category-card">
+          <div class="cat-title" style="color: var(--green);">🌀 Dynamic SVG Math</div>
+          <p class="cat-desc">The perfect visual branch connectors mapping your AST tree are not rigid lines—they are
+            mathematically calculated bezier curves mapped to offset bounds that adapt seamlessly to browser zooms!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. System Architecture -->
+    <section class="docs-section" style="animation-delay: 0.2s;">
+      <h2 class="docs-title">🏗️ <span>System Architecture</span></h2>
+      <p class="docs-text">
+        An Abstract Syntax Tree (AST) isn't magically generated. It undergoes a rigid <strong>three-stage
+          pipeline</strong> mirroring the Frontend Architecture of a standard GCC or LLVM compiler.
+      </p>
+
+      <div class="docs-diagram">
+        <div class="diagram-box">1. Source Code Input (Raw String)</div>
+        <div class="diagram-arrow"></div>
+        <div class="diagram-box">2. Lexical Analyzer (Lexer)</div>
+        <div class="diagram-arrow"></div>
+        <div class="diagram-box">3. Recursive Descent Parser</div>
+        <div class="diagram-arrow"></div>
+        <div class="diagram-box" style="border-color: var(--green); box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);">4.
+          Abstract Syntax Tree JSON</div>
+      </div>
+    </section>
+
+    <!-- 3. Lexical Analysis -->
+    <section class="docs-section" style="animation-delay: 0.3s;">
+      <h2 class="docs-title">🔤 <span>Phase 1: Lexical Analysis (The Lexer)</span></h2>
+      <p class="docs-text">
+        The first phase of the pipeline takes your human-readable raw text and compresses it into fundamental building
+        blocks known as <strong>Tokens</strong>. Our Lexer scans strings character by character, intentionally skipping
+        whitespaces and comments.
+      </p>
+      <p class="docs-text">
+        As it parses, it cross-references strings with an internalized keyword dictionary. That is how the system
+        recognizes the difference between a raw string, a language keyword, or an operator. Below is an exact breakdown
+        of a snippet processed by our Lexer pipeline:
+      </p>
+
+      <div class="docs-code">
+        <span class="comment">// Input Example</span>
+        <span class="keyword">int</span> max = <span class="number">20</span>;
+        <span class="keyword">int</span> i = <span class="number">2</span>;
+      </div>
+
+      <p class="docs-text"><strong>Simulated Lexer Output (Token Table):</strong></p>
+      <div class="docs-table-wrapper">
+        <table class="docs-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Token Type</th>
+              <th>Value</th>
+              <th>System Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><span style="color: var(--accent-primary);">INT</span></td>
+              <td>int</td>
+              <td>Keyword / Type</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><span style="color: var(--accent-primary);">IDENTIFIER</span></td>
+              <td>max</td>
+              <td>Variable Call</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><span style="color: var(--accent-primary);">ASSIGN</span></td>
+              <td>=</td>
+              <td>Operator</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span style="color: var(--accent-primary);">NUMBER</span></td>
+              <td>20</td>
+              <td>Literal Value</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span style="color: var(--accent-primary);">SEMICOLON</span></td>
+              <td>;</td>
+              <td>Punctuation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="docs-text">
+        Once the Lexer completely iterates through the file, it generates a massive linear array consisting of hundreds
+        of tokens (in the massive prime/factorial snippet, it evaluated up to roughly <strong>141 tokens</strong>!).
+        This linear array is then passed to the Parser.
+      </p>
+    </section>
+
+    <!-- 4. Syntax Analysis & The Parser -->
+    <section class="docs-section" style="animation-delay: 0.4s;">
+      <h2 class="docs-title">🔍 <span>Phase 2: Syntax Analysis (The Parser)</span></h2>
+      <p class="docs-text">
+        The most complicated phase is the <strong>Recursive Descent Parser</strong>. A parser doesn't scan letters—it
+        reads Tokens! Its sole job is to assert that the token array mathematically complies with the grammar rules of
+        the system (in this case, C/JS scoping structures).
+      </p>
+
+      <p class="docs-text">
+        The parser utilizes "Recursion" heavily. For example, if it identifies a <code>WHILE</code> token, it
+        recursively calls a function to parse an <code>Expression</code> (the condition), and then immediately calls a
+        function to parse a <code>Block</code>. If the loop code contains another <code>WHILE</code>, the logic
+        elegantly cascades deeper within itself!
+      </p>
+
+      <h3 style="color:var(--text-primary); margin: 32px 0 16px;">Node Classification Logic</h3>
+      <p class="docs-text">When generating the tree, the parser automatically tags each node into a specific
+        <strong>Class Category</strong> so the frontend algorithm knows exactly what color gradient to assign it:
+      </p>
+
+      <div class="category-grid">
+        <div class="category-card" style="border-top: 4px solid #6366f1;">
+          <div class="cat-title">🟦 Program / Statement</div>
+          <p class="cat-desc"><strong>What it is:</strong> Core structural blocks representing the flow of
+            code.<br><strong>Recognized Types:</strong> <code>Program</code>, <code>IfStatement</code>,
+            <code>WhileStatement</code>, <code>BlockStatement</code>.
+          </p>
+        </div>
+        <div class="category-card" style="border-top: 4px solid #f59e0b;">
+          <div class="cat-title">🟧 Declaration</div>
+          <p class="cat-desc"><strong>What it is:</strong> Assignments establishing new resources in
+            memory.<br><strong>Recognized Types:</strong> <code>VariableDeclaration</code> (let, var, int),
+            <code>FunctionDeclaration</code>.
+          </p>
+        </div>
+        <div class="category-card" style="border-top: 4px solid #10b981;">
+          <div class="cat-title">🟩 Expression / Operator</div>
+          <p class="cat-desc"><strong>What it is:</strong> Mathematical operations and assignments utilizing operator
+            logic.<br><strong>Recognized Types:</strong> <code>BinaryExpression</code> (+, -, *),
+            <code>AssignmentExpression</code> (=).
+          </p>
+        </div>
+        <div class="category-card" style="border-top: 4px solid #ec4899;">
+          <div class="cat-title">🟪 Literal / Identifier</div>
+          <p class="cat-desc"><strong>What it is:</strong> Hardcoded final values acting as the "leaves" of the syntax
+            tree.<br><strong>Recognized Types:</strong> <code>NumericLiteral</code> (20), <code>StringLiteral</code>,
+            <code>Identifier</code> (max).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Creating the AST Geometry -->
+    <section class="docs-section" style="animation-delay: 0.5s;">
+      <h2 class="docs-title">🌳 <span>Phase 3: Real-Time Coordinate Mapping</span></h2>
+      <p class="docs-text">
+        Once the raw AST JSON Object is sent to the Front-End HTML DOM, the `result.js` engine dynamically injects
+        <code>&lt;div&gt;</code> wrappers inside highly nested CSS Flexbox containers to naturally establish the tree
+        structure visually.
+      </p>
+
+      <p class="docs-text">
+        <strong>The Connectors:</strong> Native CSS struggles heavily with diagonal branching. To solve this, the
+        application generates a 100% viewport <strong>SVG Overlay</strong>. A mapping algorithm traverses the entire
+        Document Object Model, reads the exact <code>offsetTop</code> and <code>offsetLeft</code> of thousands of
+        generated div nodes, divides them by the active mousewheel <code>currentZoom</code> scale, and plots
+        mathematically exact curved SVG path traces spanning from every parent to every child.
+      </p>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>AST Generator — Compiler Design Project</p>
+      <p class="footer-sub">Lexical & Syntax documentation portal.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

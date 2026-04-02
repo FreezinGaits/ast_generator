@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AST Result | Compiler Design</title>
+  <meta name="description"
+    content="View the Abstract Syntax Tree generated from your source code with interactive tree visualization and token analysis.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/result.css">
+</head>
+
+<body>
+  <!-- Animated Background -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="6" r="4" fill="url(#grad1)" />
+          <circle cx="6" cy="20" r="3.5" fill="url(#grad1)" />
+          <circle cx="22" cy="20" r="3.5" fill="url(#grad1)" />
+          <line x1="14" y1="10" x2="6" y2="16.5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" />
+          <line x1="14" y1="10" x2="22" y2="16.5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="28" y2="28">
+              <stop stop-color="#6366f1" />
+              <stop offset="1" stop-color="#a855f7" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="nav-title">AST Generator</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">
+        <span class="nav-link-icon">⌨️</span> Input
+      </a>
+      <a href="result.html" class="nav-link active">
+        <span class="nav-link-icon">🌳</span> AST Result
+      </a>
+      <a href="about.html" class="nav-link">
+        <span class="nav-link-icon">📖</span> About
+      </a>
+    </div>
+    <div class="nav-badge">Compiler Design</div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container result-main">
+
+    <!-- No Data State -->
+    <section class="no-data-section" id="noDataSection">
+      <div class="no-data-card">
+        <div class="no-data-icon">🌳</div>
+        <h2 class="no-data-title">No AST Generated Yet</h2>
+        <p class="no-data-desc">Go to the input page and enter some code to generate its Abstract Syntax Tree.</p>
+        <a href="index.html" class="btn-generate" style="text-decoration:none; display:inline-flex;">
+          <span class="btn-generate-bg"></span>
+          <span class="btn-generate-content">
+            ⌨️ Go to Input Page
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Result Content (hidden until data exists) -->
+    <div id="resultContent" style="display: none;">
+
+      <!-- Source Code Display -->
+      <section class="result-section source-section">
+        <div class="section-header">
+          <div class="section-header-left">
+            <span class="section-icon">📝</span>
+            <h2 class="section-title-sm">Source Code</h2>
+          </div>
+          <button class="btn-outline" id="backToInput">
+            ← Edit Code
+          </button>
+        </div>
+        <div class="source-display">
+          <div class="editor-header compact">
+            <div class="editor-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <div class="editor-title"><span class="editor-file-icon">📄</span>input.js</div>
+          </div>
+          <pre class="source-code" id="sourceCode"></pre>
+        </div>
+      </section>
+
+      <!-- Tabs -->
+      <div class="result-tabs">
+        <button class="result-tab active" data-tab="tree">
+          <span class="tab-icon">🌳</span> AST Tree
+        </button>
+        <button class="result-tab" data-tab="tokens">
+          <span class="tab-icon">🔤</span> Token Table
+        </button>
+        <button class="result-tab" data-tab="json">
+          <span class="tab-icon">📋</span> AST JSON
+        </button>
+      </div>
+
+      <!-- Tab Contents -->
+
+      <!-- AST Tree Tab -->
+      <section class="result-section tab-content active" id="tab-tree">
+        <div class="section-header">
+          <div class="section-header-left">
+            <span class="section-icon">🌳</span>
+            <h2 class="section-title-sm">Abstract Syntax Tree</h2>
+          </div>
+          <div class="tree-controls">
+            <button class="btn-icon-sm" id="fullScreenBtn" title="Full Screen">⛶</button>
+            <button class="btn-icon-sm" id="zoomIn" title="Zoom In">+</button>
+            <button class="btn-icon-sm" id="zoomOut" title="Zoom Out">−</button>
+            <button class="btn-icon-sm" id="zoomReset" title="Reset">⟲</button>
+          </div>
+        </div>
+        <div class="tree-container" id="treeContainer">
+          <div class="tree-canvas" id="treeCanvas">
+            <!-- Tree will be rendered here -->
+          </div>
+        </div>
+        <!-- Legend -->
+        <div class="tree-legend">
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #6366f1, #818cf8);"></span>
+            <span>Program / Statement</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);"></span>
+            <span>Declaration</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #10b981, #34d399);"></span>
+            <span>Expression / Operator</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #ec4899, #f472b6);"></span>
+            <span>Literal / Identifier</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Token Table Tab -->
+      <section class="result-section tab-content" id="tab-tokens">
+        <div class="section-header">
+          <div class="section-header-left">
+            <span class="section-icon">🔤</span>
+            <h2 class="section-title-sm">Token Table (Lexer Output)</h2>
+          </div>
+          <span class="token-count" id="tokenCount"></span>
+        </div>
+        <div class="table-container">
+          <table class="token-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Token Type</th>
+                <th>Value</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody id="tokenTableBody">
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- JSON Tab -->
+      <section class="result-section tab-content" id="tab-json">
+        <div class="section-header">
+          <div class="section-header-left">
+            <span class="section-icon">📋</span>
+            <h2 class="section-title-sm">AST JSON Output</h2>
+          </div>
+          <button class="btn-outline" id="copyJson">
+            📋 Copy JSON
+          </button>
+        </div>
+        <div class="json-container">
+          <pre class="json-output" id="jsonOutput"></pre>
+        </div>
+      </section>
+
+      <!-- AST Statistics -->
+      <section class="stats-section">
+        <div class="stat-card">
+          <div class="stat-value" id="statNodes">0</div>
+          <div class="stat-label">AST Nodes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTokens">0</div>
+          <div class="stat-label">Tokens</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statDepth">0</div>
+          <div class="stat-label">Tree Depth</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statStatements">0</div>
+          <div class="stat-label">Statements</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>AST Generator — Compiler Design Project</p>
+      <p class="footer-sub">Built with Lexer, Recursive Descent Parser & Tree Visualization</p>
+    </div>
+  </footer>
+
+  <script src="js/lexer.js"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/result.js"></script>
+</body>
+
+</html>

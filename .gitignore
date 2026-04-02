@@ -1,0 +1,21 @@
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE Settings
+.vscode/
+.idea/
+
+# Package Directories (Optional future-proofing)
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Caching
+__pycache__/
+*.pyc
+.cache/
+
+# Random local text files 
+run.txt

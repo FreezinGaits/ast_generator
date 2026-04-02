@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AST Generator | Compiler Design</title>
+  <meta name="description"
+    content="Abstract Syntax Tree Generator - A Compiler Design tool that converts source code into its tree structure representation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Animated Background -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Floating Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="6" r="4" fill="url(#grad1)" />
+          <circle cx="6" cy="20" r="3.5" fill="url(#grad1)" />
+          <circle cx="22" cy="20" r="3.5" fill="url(#grad1)" />
+          <line x1="14" y1="10" x2="6" y2="16.5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" />
+          <line x1="14" y1="10" x2="22" y2="16.5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="grad1" x1="0" y1="0" x2="28" y2="28">
+              <stop stop-color="#6366f1" />
+              <stop offset="1" stop-color="#a855f7" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="nav-title">AST Generator</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">
+        <span class="nav-link-icon">⌨️</span> Input
+      </a>
+      <a href="result.html" class="nav-link" id="resultLink">
+        <span class="nav-link-icon">🌳</span> AST Result
+      </a>
+      <a href="about.html" class="nav-link">
+        <span class="nav-link-icon">📖</span> About
+      </a>
+    </div>
+    <div class="nav-badge">Compiler Design</div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="main-container">
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Compiler Design Project
+      </div>
+      <h1 class="hero-title">
+        Abstract Syntax Tree
+        <span class="hero-title-gradient">Generator</span>
+      </h1>
+      <p class="hero-subtitle">
+        Enter your source code below and watch it transform into a beautiful tree structure.
+        Our parser performs <strong>Lexical Analysis</strong>, <strong>Tokenization</strong>, and
+        <strong>Recursive Descent Parsing</strong> to build the AST.
+      </p>
+    </section>
+
+    <!-- How It Works -->
+    <section class="pipeline-section">
+      <h2 class="section-title">How It Works</h2>
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pipeline-icon">📝</div>
+          <div class="pipeline-label">Source Code</div>
+          <div class="pipeline-desc">Your input code</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-icon">🔤</div>
+          <div class="pipeline-label">Lexer</div>
+          <div class="pipeline-desc">Tokenization</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-icon">🔍</div>
+          <div class="pipeline-label">Parser</div>
+          <div class="pipeline-desc">Syntax Analysis</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step active">
+          <div class="pipeline-icon">🌳</div>
+          <div class="pipeline-label">AST</div>
+          <div class="pipeline-desc">Tree Structure</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Input Section -->
+    <section class="input-section">
+      <div class="editor-card">
+        <div class="editor-header">
+          <div class="editor-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="editor-title">
+            <span class="editor-file-icon">📄</span>
+            code-input.js
+          </div>
+          <div class="editor-actions">
+            <button class="btn-icon" id="clearBtn" title="Clear code">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 4L12 12M4 12L12 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="editor-body">
+          <div class="line-numbers" id="lineNumbers">1</div>
+          <textarea id="codeInput" class="code-editor" spellcheck="false" placeholder="Enter your code here...
+
+Examples you can try:
+
+  let x = 10 + 5 * 3;
+
+  if (x > 10) { y = 1; }
+
+  function add(a, b) { return a + b; }
+
+  x = (2 + 3) * (4 - 1);" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+
+      <!-- Example Snippets -->
+      <div class="snippets-section">
+        <h3 class="snippets-title">Quick Examples</h3>
+        <div class="snippets-grid">
+          <button class="snippet-btn" data-code="let x = 10 + 5 * 3;">
+            <span class="snippet-icon">📦</span>
+            <span class="snippet-label">Variable Declaration</span>
+            <code class="snippet-code">let x = 10 + 5 * 3;</code>
+          </button>
+          <button class="snippet-btn" data-code="if (x > 10) { y = 1; }">
+            <span class="snippet-icon">🔀</span>
+            <span class="snippet-label">If Statement</span>
+            <code class="snippet-code">if (x > 10) { y = 1; }</code>
+          </button>
+          <button class="snippet-btn" data-code="function add(a, b) { return a + b; }">
+            <span class="snippet-icon">⚡</span>
+            <span class="snippet-label">Function</span>
+            <code class="snippet-code">function add(a, b) { ... }</code>
+          </button>
+          <button class="snippet-btn" data-code="x = (2 + 3) * (4 - 1);">
+            <span class="snippet-icon">🔢</span>
+            <span class="snippet-label">Expression</span>
+            <code class="snippet-code">x = (2 + 3) * (4 - 1);</code>
+          </button>
+          <button class="snippet-btn" data-code="let result = a + b * c - d / e;">
+            <span class="snippet-icon">🧮</span>
+            <span class="snippet-label">Complex Math</span>
+            <code class="snippet-code">let result = a + b * c ...</code>
+          </button>
+          <button class="snippet-btn" data-code="while (i < 10) { i = i + 1; }">
+            <span class="snippet-icon">🔄</span>
+            <span class="snippet-label">While Loop</span>
+            <code class="snippet-code">while (i < 10) { ... }</code>
+          </button>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <div class="action-section">
+        <button class="btn-generate" id="generateBtn">
+          <span class="btn-generate-bg"></span>
+          <span class="btn-generate-content">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3v18M3 12h18" stroke-linecap="round" />
+            </svg>
+            Generate AST
+          </span>
+        </button>
+        <p class="action-hint">Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to generate</p>
+      </div>
+
+      <!-- Error Display -->
+      <div class="error-container" id="errorContainer" style="display: none;">
+        <div class="error-icon">⚠️</div>
+        <div class="error-content">
+          <h4 class="error-title">Parse Error</h4>
+          <p class="error-message" id="errorMessage"></p>
+        </div>
+        <button class="error-close" id="errorClose">&times;</button>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="feature-card">
+        <div class="feature-icon">🔤</div>
+        <h3 class="feature-title">Lexical Analysis</h3>
+        <p class="feature-desc">Breaks source code into tokens — identifiers, keywords, operators, and literals.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌳</div>
+        <h3 class="feature-title">Tree Visualization</h3>
+        <p class="feature-desc">Interactive tree diagram showing parent-child relationships between AST nodes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Token Table</h3>
+        <p class="feature-desc">View all tokens generated by the lexer along with their types and values.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>AST Generator — Compiler Design Project</p>
+      <p class="footer-sub">Built with Lexer, Recursive Descent Parser & Tree Visualization</p>
+    </div>
+  </footer>
+
+  <script src="js/lexer.js"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
